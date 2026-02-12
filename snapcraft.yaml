@@ -1,0 +1,66 @@
+name: wine-kyu
+base: core24
+adopt-info: winehq-stable
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+summary: A Snap with WineHQ
+description: |
+ A content Snap with WineHQ to be used in Snap apps of Kyuyrii.
+grade: stable
+confinement: strict
+compression: lzo
+
+slots:
+  winehq:
+    interface: content
+    read:
+      - /
+
+lint:
+  # Snapcraft's `ldd` lint can't handle 32-bit things,
+  # So just make it quiet and also make builds a surprising amount faster
+  ignore:
+    - library:
+        - lib/i386-linux-gnu/**
+        - usr/lib/i386-linux-gnu/**
+        - lib32/**
+        - usr/lib32/**
+        - opt/wine-stable/lib/wine/i386-unix/**
+
+package-repositories:
+  - type: apt
+    url: https://dl.winehq.org/wine-builds/ubuntu
+    suites: [noble]
+    components: [main]
+    architectures: [amd64, i386]
+    key-id: D43F640145369C51D786DDEA76F1A20FF987672F
+
+parts:
+  winehq-stable:
+    plugin: nil
+    stage-packages:
+      - winehq-stable
+    override-build: |
+      craftctl default
+      # Set the snap version from the .deb package version
+      craftctl set version=$(dpkg-parsechangelog -l $CRAFT_PART_INSTALL/usr/share/doc/winehq-stable/changelog.*.gz -S Version | sed -e s/1://g)
+
+  cleanup:
+    after: [winehq]
+    plugin: nil
+    build-snaps:
+      - mesa-2404
+      - kf6-core24
+    override-prime: |
+      set -eux
+      cd /snap/mesa-2404/current/usr/lib
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/{} \;
+      cd /snap/mesa-2404/current/usr/share
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/share/{} \;
+
+      cd /snap/kf6-core24/current/usr/lib
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/{} \;
+      cd /snap/kf6-core24/current/usr/share
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/share/{} \;
