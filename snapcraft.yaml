@@ -42,6 +42,7 @@ parts:
     plugin: nil
     stage-packages:
       - winehq-stable
+      - x11-xserver-utils
     override-build: |
       craftctl default
       # Set the snap version from the .deb package version
