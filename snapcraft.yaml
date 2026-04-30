@@ -73,6 +73,8 @@ parts:
       - gstreamer1.0-plugins-rtp
       - gstreamer1.0-tools
       - gstreamer1.0-tools:i386
+      - libsdl2-2.0-0
+      - libdecor-0-0
     override-build: |
       craftctl default
       # Set the snap version from the .deb package version
@@ -95,3 +97,13 @@ parts:
       find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/{} \;
       cd /snap/kf6-core24/current/usr/share
       find . -type f,l -exec rm -f $CRAFT_PRIME/usr/share/{} \;
+
+  mangohud:
+    after: [cleanup]
+    plugin: dump
+    source: https://github.com/flightlessmango/MangoHud/releases/download/v0.8.2/MangoHud-0.8.2.r0.ga37b007.tar.gz
+    override-build: |
+      craftctl default
+      tar -xvf MangoHud-package.tar -C $CRAFT_PART_INSTALL
+      sed -i 's|MANGOHUD_LIB_NAME="/usr/lib/mangohud/\\$LIB/libMangoHud_shim.so"|MANGOHUD_LIB_NAME="/usr/lib/mangohud/lib64/libMangoHud_shim.so"|' $CRAFT_PART_INSTALL/usr/bin/mangohud
+    prime: [usr]
