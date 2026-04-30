@@ -28,6 +28,7 @@ lint:
         - lib32/**
         - usr/lib32/**
         - opt/wine-stable/lib/wine/i386-unix/**
+        - usr/lib/mangohud/lib32/**
 
 package-repositories:
   - type: apt
